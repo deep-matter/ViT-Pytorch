@@ -8,6 +8,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.vscode/
+.ipynb_checkpoints/
 build/
 develop-eggs/
 dist/
