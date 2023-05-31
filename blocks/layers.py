@@ -42,3 +42,45 @@ class PositionalEncoding(nn.Module):
         return self.encoding[:seq_len, :]
         # [seq_len = 30, d_model = 512]
         # it will add with tok_emb : [128, 30, 512]  
+
+class ResidualCennection(nn.Module):
+    def __init__(self,x, residual):
+        super(ResidualCennection,self).__init__()
+        self.pass_trough = x
+        self.addtion = residual
+    def forward(self,*args, **kwargs):
+        x = self.pass_trough
+        return x + self.addtion
+
+
+class FeedForwrdNetwork(nn.Module):
+    def __init__(self,embed_size , hidden_size , dropout_pro=0.1):
+        super(FeedForwrdNetwork,self).__init__()
+        self.Linear_1= nn.Linear(embed_size,hidden_size)
+        self.Linear_2= nn.Linear(hidden_size,embed_size)
+        self.act = nn.ReLU()
+        self.dropout = nn.Dropout(p=dropout_pro)
+    def forward(self,x):
+        x = self.Linear_1(x)
+        x = self.act(x)
+        x = self.Linear_2(x)
+        x = self.dropout(x)
+        return x
+
+class NormLayer(nn.Module):
+    def __init__(self,embed_size , eps=1e-12):
+        super(NormLayer, self).__init__()
+        self.embed_size = embed_size
+        self.gamma = nn.Parameter(torch.ones(embed_size))
+        self.beta = nn.Parameter(torch.zeros(embed_size))
+        self.eps = eps
+    def forward(self,x):
+        mean = x.mean(-1, keepdims= True)
+        var = x.var(-1 , unbiased=False , keepdims= True)
+        out = ( x - mean ) / torch.sqrt(var + self.eps)
+        out = self.gamma * out + self.beta
+        return out
+
+
+
+
